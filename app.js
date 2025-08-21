@@ -1,8 +1,23 @@
 ((self) => {
     'use strict';
 
+    const config = {
+        game: {
+            cardCover: 'https://raw.githubusercontent.com/irfansubasi/card-matching-campaign/refs/heads/main/pics%20for%20url/back.png',
+            cardList: [
+                'https://raw.githubusercontent.com/irfansubasi/card-matching-campaign/refs/heads/main/pics%20for%20url/megadeth.png',
+                'https://raw.githubusercontent.com/irfansubasi/card-matching-campaign/refs/heads/main/pics%20for%20url/metallica.png',
+                'https://raw.githubusercontent.com/irfansubasi/card-matching-campaign/refs/heads/main/pics%20for%20url/slayer.png'
+            ],
+            backgroundImage: 'https://raw.githubusercontent.com/irfansubasi/card-matching-campaign/refs/heads/main/pics%20for%20url/bg.png',
+
+        }
+    }
+
     const classes = {
         style: 'ins-custom-style',
+        wrapper: 'ins-wrapper',
+        sideBtn: 'ins-side-btn',
     }
 
     const selectors = Object.keys(classes).reduce((createdSelector, key) => (
@@ -19,7 +34,6 @@
             self.buildHTML();
             self.setEvents();
         }
-
     };
 
     self.reset = () => {
@@ -41,15 +55,30 @@
     }
 
     self.buildCSS = () => {
+        const { style } = classes;
 
+        const customStyle = `
+            <style class="${style}">
+            
+            </style>
+        `
+
+        $('head').append(customStyle);
     }
 
     self.buildHTML = () => {
+        const { sideBtn, wrapper } = classes;
+
         const html = `
-            
+            <div class="${wrapper}">
+                <div class="${sideBtn}">
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
         `;
 
-        document.body.appendChild(html);
+        $(html).appendTo('body');
     }
 
     self.setEvents = () => {
