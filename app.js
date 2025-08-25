@@ -1,6 +1,6 @@
 ((self) => {
     'use strict';
-    //match olduğunda disabled ekle çalışmasınlar--- wrapper her şeyi barındırır 
+    //match olduğunda disabled ekle çalışmasınlar---
     const config = {
         sideBtnText: 'Get Your Gift',
         sideBtnTextWin: 'Claim Your Gift',
@@ -672,30 +672,27 @@
 
     }
 
-    self.startGame = () => {
+    self.startGame = async () => {
         const { readyBtn, cardItem } = selectors;
         const { hide, flipCardAnimation } = classes;
+
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         $(readyBtn).toggleClass(hide);
         $(cardItem).addClass(flipCardAnimation);
 
-        setTimeout(() => {
-            $(cardItem).find('img').each((index, img) => {
-                $(img).attr('src', $(img).attr('data-src'));
-            });
-        }, 500);
-
-        setTimeout(() => {//çok timeout var olur yönünü araştır
-            $(cardItem).removeClass(flipCardAnimation);
-            setTimeout(() => {
-                $(cardItem).addClass(flipCardAnimation);
-                setTimeout(() => {
-                    gameStarted = true;
-                    $(cardItem).find('img').attr('src', config.gameAssets.cardCover);
-                    $(cardItem).removeClass(flipCardAnimation);
-                }, 500);
-            }, 500);
-        }, 4000);
+        await delay(500);
+        $(cardItem).find('img').each((index, img) => {
+            $(img).attr('src', $(img).attr('data-src'));
+        });
+        await delay(4000);
+        $(cardItem).removeClass(flipCardAnimation);
+        await delay(500);
+        $(cardItem).addClass(flipCardAnimation);
+        await delay(500);
+        gameStarted = true;
+        $(cardItem).find('img').attr('src', config.gameAssets.cardCover);
+        $(cardItem).removeClass(flipCardAnimation);
     }
 
     self.resetGame = () => {
