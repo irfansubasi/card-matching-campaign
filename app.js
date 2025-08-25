@@ -6,7 +6,10 @@
         sideBtnTextWin: 'Claim Your Gift',
         closeIcon: 'X',
         prevIcon: '⬅',
-        storageKey: 'ins-gameWon',
+        storageKeys: {
+            gameWon: 'ins-gameWon',
+            panelDismissed: 'ins-panelDismissed',
+        },
         cacheExpiry: 86400000,
         gameAssets: {
             cardCover: 'https://raw.githubusercontent.com/irfansubasi/card-matching-campaign/refs/heads/main/pics%20for%20url/back.png',
@@ -113,6 +116,7 @@
             self.buildHTML();
             self.setEvents();
             self.checkWonStatus();
+            self.checkPanelDismissed();
         }
     };
 
@@ -499,16 +503,16 @@
     }
 
     self.setEvents = () => {
-        const { show, panelExpanded } = classes;
+        const { show, panelExpanded, hide } = classes;
         const { sideBtn, modalOverlay, shuffleBtn, cardItem, readyBtn, tryAgainBtn, closeBtn, startBtn,
-            prevBtn, couponCode, panel } = selectors;
+            prevBtn, couponCode, panel, panelDismiss, panelButton, wrapper } = selectors;
 
         $(document).on('click.changePage', startBtn, () => {
             self.slideTo(1);
         });
 
         $(document).on('click.openModal', sideBtn, () => {
-            const hasPlayed = self.getLocalStorage();
+            const hasPlayed = self.getLocalStorage(config.storageKeys.gameWon);
 
             if (hasPlayed) {
                 $(panel).toggleClass(panelExpanded);
@@ -540,17 +544,32 @@
 
         $(document).on('click.restartGame', tryAgainBtn, self.resetGame);
 
-        $(document).on('click.copyCouponCode', couponCode, self.copyCouponCode);
+        $(document).on('click.copyCouponCode', `${couponCode}, ${panelButton}`, self.copyCouponCode);
 
+        $(document).on('click.dismissPanel', panelDismiss, () => {
+            self.setLocalStorage(config.storageKeys.panelDismissed, true);
+            $(wrapper).addClass(hide);
+        });
     }
 
     self.checkWonStatus = () => {
         const { sideBtnText } = selectors;
 
-        const hasPlayed = self.getLocalStorage();
+        const hasPlayed = self.getLocalStorage(config.storageKeys.gameWon);
 
         if (hasPlayed) {
             $(sideBtnText).text(config.sideBtnTextWin);
+        }
+    }
+
+    self.checkPanelDismissed = () => {
+        const { wrapper } = selectors;
+        const { hide } = classes;
+
+        const dismissed = self.getLocalStorage(config.storageKeys.panelDismissed);
+
+        if (dismissed) {
+            $(wrapper).addClass(hide);
         }
     }
 
@@ -632,7 +651,7 @@
                 if (openedCards === totalCards) {
                     setTimeout(() => {
                         self.updateResultGame(true);
-                        self.setLocalStorage();
+                        self.setLocalStorage(config.storageKeys.gameWon, true);
                     }, 1000);
                 }
             } else {
@@ -729,17 +748,17 @@
         navigator.clipboard.writeText(couponCode);
     }
 
-    self.setLocalStorage = (expiry = config.cacheExpiry) => {
+    self.setLocalStorage = (name, data, expiry = config.cacheExpiry) => {
         const toStore = {
-            value: 'true',
+            value: data,
             expiry: Date.now() + expiry,
         }
 
-        localStorage.setItem(config.storageKey, JSON.stringify(toStore));
+        localStorage.setItem(name, JSON.stringify(toStore));
     }
 
-    self.getLocalStorage = () => {
-        const stored = localStorage.getItem(config.storageKey);
+    self.getLocalStorage = (name) => {
+        const stored = localStorage.getItem(name);
 
         if (!stored) return null;
 
@@ -748,7 +767,7 @@
         if (!parsed.expiry || !parsed.expiry) return null;
 
         if (Date.now() > parsed.expiry) {
-            localStorage.removeItem(config.storageKey);
+            localStorage.removeItem(name);
             return null;
         }
 
