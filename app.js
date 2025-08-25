@@ -1,6 +1,6 @@
 ((self) => {
     'use strict';
-    //match olduğunda disabled ekle çalışmasınlar--- wrapper her şeyi barındırır -- fisher yates yerine anlatabileceğin shuffle -- 
+    //match olduğunda disabled ekle çalışmasınlar--- wrapper her şeyi barındırır 
     const config = {
         sideBtnText: 'Get Your Gift',
         sideBtnTextWin: 'Claim Your Gift',
@@ -55,10 +55,18 @@
             buttonText: 'COPY',
             dismissText: "Don't show me again",
         },
-        offEvents: [
-            '.openModal',
-            '.closeModal',
-        ]
+        events: {
+            changePage: '.changePage',
+            openModal: '.openModal',
+            closeModal: '.closeModal',
+            prevPage: '.prevPage',
+            shuffleCards: '.shuffleCards',
+            gameStart: '.gameStart',
+            cardGame: '.cardGame',
+            restartGame: '.restartGame',
+            copyCouponCode: '.copyCouponCode',
+            dismissPanel: '.dismissPanel',
+        }
     }
 
     let gameStarted = false;
@@ -125,7 +133,7 @@
 
         $(style).remove();
 
-        config.offEvents.forEach(event => $(document).off(event));
+        Object.values(config.events).forEach(event => $(document).off(event));
 
     }
 
@@ -199,6 +207,7 @@
                 }
 
                 ${modal}{
+                    overflow: hidden;
                     font-family: 'Verdana', sans-serif;
                     position: fixed;
                     top: 50%;
@@ -443,7 +452,6 @@
             title, description, gift, startBtn, shuffleBtn, readyBtn, cardItem, cardList, closeBtn, prevBtn,
             panel, panelTitle, panelSubtitle, panelDescription, panelCouponCode, panelCouponCodeContainer,
             panelButton, panelDismiss } = classes;
-        const { modal: modalSelector } = selectors;
 
         const html = `
             <div class="${wrapper}">
@@ -460,61 +468,53 @@
                     </div>
                     <div class="${panelDismiss}">${config.sidePanel.dismissText}</div>
                 </div>
-            </div>
-        `;
-
-        const modalHTML = `
-            <div class="${modalOverlay}">
-                <div class="${modal}">
-                </div>
-            </div>
-        `;
-
-        const sliderHTML = `
-            <div class="${closeBtn}">${config.closeIcon}</div>
-            <div class="${slider}">
-                <div class="${track}">
-                    <div class="${page}">
-                        <h2 class="${title}">${config.pageText.startPage.title}</h2>
-                        <p class="${description}">${config.pageText.startPage.description}</p>
-                        <p class="${gift}">${config.pageText.startPage.gift}</p>
-                        <div class="${startBtn}">${config.pageText.startPage.buttonText}</div>
-                    </div>
-                    <div class="${page}">
-                        <div class="${prevBtn}">${config.prevIcon}</div>
-                        <h2 class="${title}">${config.pageText.gamePage.title}</h2>
-                        <div class="${cardList}">
-                            ${config.gameAssets.cardList.map(card => `
-                                <div class="${cardItem}">
-                                    <img src="${card}" alt="card">
+                <div class="${modalOverlay}">
+                    <div class="${modal}">
+                        <div class="${closeBtn}">${config.closeIcon}</div>
+                        <div class="${slider}">
+                            <div class="${track}">
+                                <div class="${page}">
+                                    <h2 class="${title}">${config.pageText.startPage.title}</h2>
+                                    <p class="${description}">${config.pageText.startPage.description}</p>
+                                    <p class="${gift}">${config.pageText.startPage.gift}</p>
+                                    <div class="${startBtn}">${config.pageText.startPage.buttonText}</div>
                                 </div>
-                            `).join('').repeat(2)}
+                                <div class="${page}">
+                                    <div class="${prevBtn}">${config.prevIcon}</div>
+                                    <h2 class="${title}">${config.pageText.gamePage.title}</h2>
+                                    <div class="${cardList}">
+                                        ${config.gameAssets.cardList.map(card => `
+                                            <div class="${cardItem}">
+                                                <img src="${card}" alt="card">
+                                            </div>
+                                        `).join('').repeat(2)}
+                                    </div>
+                                    <div class="${shuffleBtn}">${config.pageText.gamePage.shuffleBtn}</div>
+                                    <div class="${readyBtn}">${config.pageText.gamePage.readyBtn}</div>
+                                </div>
+                                <div class="${page}">
+                                </div>
+                            </div>
                         </div>
-                        <div class="${shuffleBtn}">${config.pageText.gamePage.shuffleBtn}</div>
-                        <div class="${readyBtn}">${config.pageText.gamePage.readyBtn}</div>
-                    </div>
-                    <div class="${page}">
                     </div>
                 </div>
             </div>
         `;
-
 
         $(html).appendTo('body');
-        $(modalHTML).appendTo('body');
-        $(modalSelector).html(sliderHTML);
     }
 
     self.setEvents = () => {
         const { show, panelExpanded, hide } = classes;
         const { sideBtn, modalOverlay, shuffleBtn, cardItem, readyBtn, tryAgainBtn, closeBtn, startBtn,
             prevBtn, couponCode, panel, panelDismiss, panelButton, wrapper } = selectors;
+        const { events } = config;
 
-        $(document).on('click.changePage', startBtn, () => {
+        $(document).on(`click${events.changePage}`, startBtn, () => {
             self.slideTo(1);
         });
 
-        $(document).on('click.openModal', sideBtn, () => {
+        $(document).on(`click${events.openModal}`, sideBtn, () => {
             const hasPlayed = self.getLocalStorage(config.storageKeys.gameWon);
 
             if (hasPlayed) {
@@ -525,31 +525,31 @@
             $(modalOverlay).toggleClass(show);
         });
 
-        $(document).on('click.closeModal', modalOverlay, (event) => {
+        $(document).on(`click${events.closeModal}`, modalOverlay, (event) => {
             if (event.target === event.currentTarget) {
                 $(modalOverlay).toggleClass(show);
             }
         });
 
-        $(document).on('click.closeModal', closeBtn, (event) => {
+        $(document).on(`click${events.closeModal}`, closeBtn, (event) => {
             if (event.target === event.currentTarget) {
                 $(modalOverlay).toggleClass(show);
             }
         });
 
-        $(document).on('click.prevPage', prevBtn, self.resetGame);
+        $(document).on(`click${events.prevPage}`, prevBtn, self.resetGame);
 
-        $(document).on('click.shuffleCards', shuffleBtn, self.shuffleCards);
+        $(document).on(`click${events.shuffleCards}`, shuffleBtn, self.shuffleCards);
 
-        $(document).on('click.gameStart', readyBtn, self.startGame);
+        $(document).on(`click${events.gameStart}`, readyBtn, self.startGame);
 
-        $(document).on('click.cardGame', cardItem, self.handleCardClick);
+        $(document).on(`click${events.cardGame}`, cardItem, self.handleCardClick);
 
-        $(document).on('click.restartGame', tryAgainBtn, self.resetGame);
+        $(document).on(`click${events.restartGame}`, tryAgainBtn, self.resetGame);
 
-        $(document).on('click.copyCouponCode', `${couponCode}, ${panelButton}`, self.copyCouponCode);
+        $(document).on(`click${events.copyCouponCode}`, `${couponCode}, ${panelButton}`, self.copyCouponCode);
 
-        $(document).on('click.dismissPanel', panelDismiss, () => {
+        $(document).on(`click${events.dismissPanel}`, panelDismiss, () => {
             self.setLocalStorage(config.storageKeys.panelDismissed, true);
             $(wrapper).addClass(hide);
         });
