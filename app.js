@@ -129,9 +129,10 @@
     };
 
     self.reset = () => {
-        const { style } = selectors; //virgülle ayırabilirsin removeda
+        const { style, wrapper } = selectors;
 
         $(style).remove();
+        $(wrapper).remove();
 
         Object.values(config.events).forEach(event => $(document).off(event));
 
