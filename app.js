@@ -144,14 +144,16 @@
         const customStyle = `
             <style class="${style}">
                 ${wrapper}{
-                    position: fixed;
-                    top: 50%;
-                    left: 0;
-                    transform: translateY(-50%);
+                    width: 100%;
+                    height: 100%;
                     font-family: 'Verdana', sans-serif;
                 }
 
                 ${sideBtn}{
+                    position: fixed;
+                    top: 50%;
+                    left: 0;
+                    transform: translateY(-50%);
                     background-color: #000000;
                     border-left: none;
                     width: 50px;
@@ -161,6 +163,7 @@
                     justify-content: center;
                     cursor: pointer;
                     padding: 10px 0;
+                    z-index: 5;
                 }
 
                 ${sideBtnText}{
@@ -328,7 +331,8 @@
                     flex-direction: column;
                     justify-content: space-between;
                     position: fixed;
-                    top: 0;
+                    transform: translateX(-320px) translateY(-50%);
+                    top: 50%;
                     left: 50px;
                     width: 300px;
                     height: 150px;
@@ -336,6 +340,7 @@
                     border-radius: 0 8px 8px 0;
                     padding: 10px;
                     font-size: 13px;
+                    z-index: 4;
                 }
 
                 ${panelTitle},
