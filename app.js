@@ -3,6 +3,7 @@
     //kazanınca get you win tarzı değişsin  match olduğunda disabled ekle çalışmasınlar--- classları alt alta -- destruct ederken uzunları alt alta al -- wrapper her şeyi barındırır -- fisher yates yerine anlatabileceğin shuffle -- 
     const config = {
         sideBtnText: 'Get Your Gift',
+        sideBtnTextWin: 'Claim Your Gift',
         closeIcon: 'X',
         prevIcon: '⬅',
         storageKey: 'ins-gameWon',
@@ -88,6 +89,7 @@
         tryAgainBtn: 'ins-tryagain-btn',
         couponCode: 'ins-coupon-code',
         panel: 'ins-panel',
+        panelExpanded: 'ins-panel-expanded',
         panelTitle: 'ins-panel-title',
         panelSubtitle: 'ins-panel-subtitle',
         panelDescription: 'ins-panel-description',
@@ -110,6 +112,7 @@
             self.buildCSS();
             self.buildHTML();
             self.setEvents();
+            self.checkWonStatus();
         }
     };
 
@@ -138,7 +141,7 @@
         const { style } = classes;
         const { wrapper, sideBtn, sideBtnText, modal, modalOverlay, show, hide, slider, track, page,
             title, description, gift, startBtn, cardItem, cardList, shuffleBtn, readyBtn, flipCardAnimation,
-            shuffleAnimation, tryAgainBtn, closeBtn, prevBtn, panel, panelTitle, panelSubtitle, panelDescription,
+            shuffleAnimation, tryAgainBtn, closeBtn, prevBtn, panel, panelExpanded, panelTitle, panelSubtitle, panelDescription,
             panelCouponCode, panelCouponCodeContainer, panelButton, panelDismiss } = selectors;
 
         const customStyle = `
@@ -157,7 +160,7 @@
                     background-color: #000000;
                     border-left: none;
                     width: 50px;
-                    height: 150px;
+                    height: 200px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -332,15 +335,20 @@
                     justify-content: space-between;
                     position: fixed;
                     transform: translateX(-320px) translateY(-50%);
+                    transition: transform 0.5s ease-in-out;
                     top: 50%;
                     left: 50px;
                     width: 300px;
-                    height: 150px;
+                    height: 200px;
                     background-color: #e0e0e0ff;
                     border-radius: 0 8px 8px 0;
                     padding: 10px;
                     font-size: 13px;
                     z-index: 4;
+                }
+
+                ${panelExpanded}{
+                    transform: translateX(0) translateY(-50%);
                 }
 
                 ${panelTitle},
@@ -491,8 +499,9 @@
     }
 
     self.setEvents = () => {
-        const { show } = classes;
-        const { sideBtn, modalOverlay, shuffleBtn, cardItem, readyBtn, tryAgainBtn, closeBtn, startBtn, prevBtn, couponCode } = selectors;
+        const { show, panelExpanded } = classes;
+        const { sideBtn, modalOverlay, shuffleBtn, cardItem, readyBtn, tryAgainBtn, closeBtn, startBtn,
+            prevBtn, couponCode, panel } = selectors;
 
         $(document).on('click.changePage', startBtn, () => {
             self.slideTo(1);
@@ -502,7 +511,7 @@
             const hasPlayed = self.getLocalStorage();
 
             if (hasPlayed) {
-                alert('You have already played this game.');
+                $(panel).toggleClass(panelExpanded);
                 return;
             }
 
@@ -533,6 +542,16 @@
 
         $(document).on('click.copyCouponCode', couponCode, self.copyCouponCode);
 
+    }
+
+    self.checkWonStatus = () => {
+        const { sideBtnText } = selectors;
+
+        const hasPlayed = self.getLocalStorage();
+
+        if (hasPlayed) {
+            $(sideBtnText).text(config.sideBtnTextWin);
+        }
     }
 
     self.shuffleDeck = () => {
@@ -675,7 +694,7 @@
 
     self.updateResultGame = (isWin) => {
         const { win, lose } = config.pageText.resultPage;
-        const { track, page } = selectors;
+        const { track, page, sideBtnText } = selectors;
         const { tryAgainBtn, title, description, couponCode } = classes;
 
         const winHTML = `
@@ -695,6 +714,10 @@
         `;
 
         const resultHTML = isWin ? winHTML : loseHTML;
+
+        if (isWin) {
+            $(sideBtnText).text(config.sideBtnTextWin);
+        }
 
         $(track).find(page).last().html(resultHTML);
 
