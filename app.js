@@ -1,6 +1,6 @@
 ((self) => {
     'use strict';
-    //kazanınca get you win tarzı değişsin  match olduğunda disabled ekle çalışmasınlar--- classları alt alta -- destruct ederken uzunları alt alta al -- wrapper her şeyi barındırır -- fisher yates yerine anlatabileceğin shuffle -- 
+    //match olduğunda disabled ekle çalışmasınlar--- wrapper her şeyi barındırır -- fisher yates yerine anlatabileceğin shuffle -- 
     const config = {
         sideBtnText: 'Get Your Gift',
         sideBtnTextWin: 'Claim Your Gift',
@@ -145,7 +145,7 @@
         const { style } = classes;
         const { wrapper, sideBtn, sideBtnText, modal, modalOverlay, show, hide, slider, track, page,
             title, description, gift, startBtn, cardItem, cardList, shuffleBtn, readyBtn, flipCardAnimation,
-            shuffleAnimation, tryAgainBtn, closeBtn, prevBtn, panel, panelExpanded, panelTitle, panelSubtitle, panelDescription,
+            shuffleAnimation, tryAgainBtn, closeBtn, prevBtn, panel, panelExpanded, panelTitle, panelSubtitle,
             panelCouponCode, panelCouponCodeContainer, panelButton, panelDismiss } = selectors;
 
         const customStyle = `
@@ -280,7 +280,10 @@
                     font-weight: 700;
                 }
 
-                ${startBtn}, ${shuffleBtn}, ${readyBtn}, ${tryAgainBtn}{
+                ${startBtn},
+                ${shuffleBtn},
+                ${readyBtn},
+                ${tryAgainBtn}{
                     font-size: 20px;
                     font-weight: 700;
                     text-transform: uppercase;
@@ -578,15 +581,19 @@
 
         let allCards = config.gameAssets.cardList.concat(config.gameAssets.cardList);
 
-        //fisher-yates
-        for (let i = allCards.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [allCards[i], allCards[j]] = [allCards[j], allCards[i]];
+        let shuffled = [];
+        let temp = allCards.slice();
+
+        while (temp.length > 0) {
+            const index = Math.floor(Math.random() * temp.length);
+            const picked = temp[index];
+            shuffled.push(picked);
+            temp.splice(index, 1);
         }
 
         const cards = $(cardItem).find('img');
         cards.each((index, img) => {
-            $(img).attr('data-src', allCards[index]);
+            $(img).attr('data-src', shuffled[index]);
         });
 
     }
