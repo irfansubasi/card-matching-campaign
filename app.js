@@ -1,6 +1,6 @@
 ((self) => {
     'use strict';
-
+    //kazanınca get you win tarzı değişsin  match olduğunda disabled ekle çalışmasınlar--- classları alt alta -- destruct ederken uzunları alt alta al -- wrapper her şeyi barındırır -- fisher yates yerine anlatabileceğin shuffle -- 
     const config = {
         sideBtnText: 'Get Your Gift',
         closeIcon: 'X',
@@ -43,6 +43,14 @@
                 }
             }
         },
+        sidePanel: {
+            title: '40% discount on festival ticket!',
+            subtitle: 'For only today!',
+            description: 'Copy and use this code.',
+            couponCode: 'RIPOZZY25',
+            buttonText: 'COPY',
+            dismissText: "Don't show me again",
+        },
         offEvents: [
             '.openModal',
             '.closeModal',
@@ -78,6 +86,15 @@
         shuffleAnimation: 'ins-shuffle-animation',
         opened: 'ins-opened-card',
         tryAgainBtn: 'ins-tryagain-btn',
+        couponCode: 'ins-coupon-code',
+        panel: 'ins-panel',
+        panelTitle: 'ins-panel-title',
+        panelSubtitle: 'ins-panel-subtitle',
+        panelDescription: 'ins-panel-description',
+        panelCouponCode: 'ins-panel-coupon-code',
+        panelCouponCodeContainer: 'ins-panel-coupon-code-container',
+        panelButton: 'ins-panel-button',
+        panelDismiss: 'ins-panel-dismiss',
     }
 
     const selectors = Object.keys(classes).reduce((createdSelector, key) => (
@@ -119,7 +136,10 @@
 
     self.buildCSS = () => {
         const { style } = classes;
-        const { wrapper, sideBtn, sideBtnText, modal, modalOverlay, show, hide, slider, track, page, title, description, gift, startBtn, cardItem, cardList, shuffleBtn, readyBtn, flipCardAnimation, shuffleAnimation, tryAgainBtn, closeBtn, prevBtn } = selectors;
+        const { wrapper, sideBtn, sideBtnText, modal, modalOverlay, show, hide, slider, track, page,
+            title, description, gift, startBtn, cardItem, cardList, shuffleBtn, readyBtn, flipCardAnimation,
+            shuffleAnimation, tryAgainBtn, closeBtn, prevBtn, panel, panelTitle, panelSubtitle, panelDescription,
+            panelCouponCode, panelCouponCodeContainer, panelButton, panelDismiss } = selectors;
 
         const customStyle = `
             <style class="${style}">
@@ -133,10 +153,9 @@
 
                 ${sideBtn}{
                     background-color: #000000;
-                    border: 1px solid #ffffff;
                     border-left: none;
                     width: 50px;
-                    height: auto;
+                    height: 150px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -304,6 +323,59 @@
                     display: none;
                 }
 
+                ${panel}{
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    position: fixed;
+                    top: 0;
+                    left: 50px;
+                    width: 300px;
+                    height: 150px;
+                    background-color: #e0e0e0ff;
+                    border-radius: 0 8px 8px 0;
+                    padding: 10px;
+                    font-size: 13px;
+                }
+
+                ${panelTitle},
+                ${panelSubtitle}{
+                    font-size: 15px;
+                    font-weight: 700;
+                }
+
+                ${panelCouponCodeContainer}{
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 5px;
+                }
+
+                ${panelCouponCode}{
+                    background-color: #ffffff;
+                    border: #000000 2px dashed;
+                    text-align: center;
+                    padding: 5px 0;
+                    border-radius: 5px;
+                    font-weight: 700;
+                }
+
+                ${panelButton}{
+                    font-weight: 700;
+                    background-color: #000000;
+                    border: 2px solid #000000;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    padding: 5px 0;
+                    color: #ffffff;
+                    text-align: center;
+                }
+
+                ${panelDismiss}{
+                    text-align: end;
+                    cursor: pointer;
+                }
+
                 @keyframes cardFlip {
                     0% {
                         transform: rotateY(0deg);
@@ -347,13 +419,26 @@
     }
 
     self.buildHTML = () => {
-        const { sideBtn, wrapper, sideBtnText, modal, modalOverlay, slider, track, page, title, description, gift, startBtn, shuffleBtn, readyBtn, cardItem, cardList, closeBtn, prevBtn } = classes;
+        const { sideBtn, wrapper, sideBtnText, modal, modalOverlay, slider, track, page,
+            title, description, gift, startBtn, shuffleBtn, readyBtn, cardItem, cardList, closeBtn, prevBtn,
+            panel, panelTitle, panelSubtitle, panelDescription, panelCouponCode, panelCouponCodeContainer,
+            panelButton, panelDismiss } = classes;
         const { modal: modalSelector } = selectors;
 
         const html = `
             <div class="${wrapper}">
                 <div class="${sideBtn}">
                     <div class="${sideBtnText}">${config.sideBtnText}</div>
+                </div>
+                <div class="${panel}">
+                    <div class="${panelTitle}">${config.sidePanel.title}</div>
+                    <div class="${panelSubtitle}">${config.sidePanel.subtitle}</div>
+                    <div class="${panelDescription}">${config.sidePanel.description}</div>
+                    <div class="${panelCouponCodeContainer}">
+                        <div class="${panelCouponCode}">${config.sidePanel.couponCode}</div>
+                        <div class="${panelButton}">${config.sidePanel.buttonText}</div>
+                    </div>
+                    <div class="${panelDismiss}">${config.sidePanel.dismissText}</div>
                 </div>
             </div>
         `;
@@ -492,7 +577,7 @@
 
     self.handleCardClick = (event) => {
 
-        const { opened } = classes;
+        const { opened, flipCardAnimation } = classes;
         const { cardItem, opened: openedSelector } = selectors;
 
         if (!gameStarted) return;
@@ -503,8 +588,11 @@
         if (selectedCard.hasClass(opened)) return;
 
         selectedCard.addClass(opened);
+        selectedCard.addClass(flipCardAnimation);
 
-        selectedCard.find('img').attr('src', cardImg);
+        setTimeout(() => {
+            selectedCard.find('img').attr('src', cardImg);
+        }, 500);
 
         if (pair.length < 2) {
             pair.push(cardImg);
@@ -518,13 +606,18 @@
                 const openedCards = $(cardItem).filter(openedSelector).length;
 
                 if (openedCards === totalCards) {
-                    self.updateResultGame(true);
-                    self.setLocalStorage();
+                    setTimeout(() => {
+                        self.updateResultGame(true);
+                        self.setLocalStorage();
+                    }, 1000);
                 }
             } else {
-                self.updateResultGame(false);
+                setTimeout(() => {
+                    self.updateResultGame(false);
+                }, 1000);
             }
         }
+
 
     }
 
@@ -541,13 +634,14 @@
             });
         }, 500);
 
-        setTimeout(() => {
+        setTimeout(() => {//çok timeout var olur yönünü araştır
             $(cardItem).removeClass(flipCardAnimation);
             setTimeout(() => {
                 $(cardItem).addClass(flipCardAnimation);
                 setTimeout(() => {
                     gameStarted = true;
                     $(cardItem).find('img').attr('src', config.gameAssets.cardCover);
+                    $(cardItem).removeClass(flipCardAnimation);
                 }, 500);
             }, 500);
         }, 4000);
@@ -577,14 +671,14 @@
     self.updateResultGame = (isWin) => {
         const { win, lose } = config.pageText.resultPage;
         const { track, page } = selectors;
-        const { tryAgainBtn, title, description } = classes;
+        const { tryAgainBtn, title, description, couponCode } = classes;
 
         const winHTML = `
             <h2 class="${title}">${win.title}</h2>
             <div class="${description}">${win.description}</div>
             <div>
                 <div>${win.couponCode}</div>
-                <div>${win.buttonText}</div>
+                <div class="${couponCode}">${win.buttonText}</div>
             </div>
             <div>${win.warning}</div>
         `;
