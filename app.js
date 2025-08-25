@@ -1,6 +1,6 @@
 ((self) => {
     'use strict';
-    //match olduğunda disabled ekle çalışmasınlar---
+
     const config = {
         sideBtnText: 'Get Your Gift',
         sideBtnTextWin: 'Claim Your Gift',
@@ -128,16 +128,6 @@
         }
     };
 
-    self.reset = () => {
-        const { style, wrapper } = selectors;
-
-        $(style).remove();
-        $(wrapper).remove();
-
-        Object.values(config.events).forEach(event => $(document).off(event));
-
-    }
-
     self.loadJQuery = () => {
         const script = document.createElement('script');
 
@@ -148,6 +138,15 @@
         };
 
         document.head.appendChild(script);
+    }
+
+    self.reset = () => {
+        const { style, wrapper } = selectors;
+
+        $(style).remove();
+        $(wrapper).remove();
+
+        Object.values(config.events).forEach(event => $(document).off(event));
     }
 
     self.buildCSS = () => {
@@ -199,6 +198,7 @@
                     width: 100%;
                     height: 100%;
                     background-color: rgba(0, 0, 0, 0.5);
+                    z-index: 50;
                 }
 
                 ${modal} *{
@@ -214,8 +214,8 @@
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%);
-                    width: 800px;
-                    height: 600px;
+                    width: 60vw;
+                    height: 70vh;
                     background: url(${config.gameAssets.backgroundImage})center center;
                     border-radius: 30px;
                     border: 2px solid #ffffff;
@@ -267,7 +267,7 @@
                     justify-content: space-around;
                     color: #ffffff;
                     text-align: center;
-                    padding: 30px;
+                    padding: 20px;
                 }
 
                 ${page}:nth-child(2) {
@@ -441,6 +441,27 @@
                         transform: translateX(0);
                     }
                 }
+
+                @media (max-width: 992px) {
+                    ${modal}{
+                        width: 90vw;
+                        height: 70vh;
+                    }
+
+                    ${title}{
+                        font-size: 12px;
+                    }
+
+                    ${description}{
+                        font-size: 10px;
+                    }
+
+                    ${gift}{
+                        font-size: 15px;
+                    }
+                }
+
+                
 
             </style>
         `
@@ -779,7 +800,10 @@
         return parsed.value;
     }
 
-    self.slideTo = (page) => { $(selectors.slider).css('transform', `translateX(-${page * 800}px)`) };
+    self.slideTo = (page) => {
+        const w = $(selectors.modal)[0].clientWidth;
+        $(selectors.slider).css('transform', `translateX(-${page * w}px)`)
+    };
 
     self.init();
 })({})
