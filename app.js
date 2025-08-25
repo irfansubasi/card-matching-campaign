@@ -99,6 +99,8 @@
         opened: 'ins-opened-card',
         tryAgainBtn: 'ins-tryagain-btn',
         couponCode: 'ins-coupon-code',
+        couponCodeBtn: 'ins-coupon-code-btn',
+        couponCodeContainer: 'ins-coupon-code-container',
         panel: 'ins-panel',
         panelExpanded: 'ins-panel-expanded',
         panelTitle: 'ins-panel-title',
@@ -154,7 +156,8 @@
         const { wrapper, sideBtn, sideBtnText, modal, modalOverlay, show, hide, slider, track, page,
             title, description, gift, startBtn, cardItem, cardList, shuffleBtn, readyBtn, flipCardAnimation,
             shuffleAnimation, tryAgainBtn, closeBtn, prevBtn, panel, panelExpanded, panelTitle, panelSubtitle,
-            panelCouponCode, panelCouponCodeContainer, panelButton, panelDismiss } = selectors;
+            panelCouponCode, panelCouponCodeContainer, panelButton, panelDismiss, couponCodeContainer,
+            couponCodeBtn, couponCode } = selectors;
 
         const customStyle = `
             <style class="${style}">
@@ -325,6 +328,38 @@
                     height: 100%;
                     object-fit: cover;
                 }
+
+                ${couponCodeContainer}{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 5px;
+                    width: 100%;
+                }
+
+                ${couponCode}{
+                    font-weight: 700;
+                    background-color: #ffffff;
+                    color: #000000;
+                    border: #000000 2px dashed;
+                    text-align: center;
+                    padding: 5px;
+                    border-radius: 5px;
+                    width: 100%;
+                    flex: 2;
+                }
+
+                ${couponCodeBtn}{
+                    font-weight: 700;
+                    background-color: #000000;
+                    border: 2px solid #000000;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    text-align: center;
+                    padding: 5px;
+                    width: 100%;
+                    flex: 1;
+                }
                 
                 ${readyBtn}{
                     display:none;
@@ -461,7 +496,7 @@
                     }
                 }
 
-                
+
 
             </style>
         `
@@ -529,7 +564,7 @@
     self.setEvents = () => {
         const { show, panelExpanded, hide } = classes;
         const { sideBtn, modalOverlay, shuffleBtn, cardItem, readyBtn, tryAgainBtn, closeBtn, startBtn,
-            prevBtn, couponCode, panel, panelDismiss, panelButton, wrapper } = selectors;
+            prevBtn, couponCodeBtn, panel, panelDismiss, panelButton, wrapper } = selectors;
         const { events } = config;
 
         $(document).on(`click${events.changePage}`, startBtn, () => {
@@ -569,7 +604,7 @@
 
         $(document).on(`click${events.restartGame}`, tryAgainBtn, self.resetGame);
 
-        $(document).on(`click${events.copyCouponCode}`, `${couponCode}, ${panelButton}`, self.copyCouponCode);
+        $(document).on(`click${events.copyCouponCode}`, `${couponCodeBtn}, ${panelButton}`, self.copyCouponCode);
 
         $(document).on(`click${events.dismissPanel}`, panelDismiss, () => {
             self.setLocalStorage(config.storageKeys.panelDismissed, true);
@@ -740,16 +775,16 @@
     self.updateResultGame = (isWin) => {
         const { win, lose } = config.pageText.resultPage;
         const { track, page, sideBtnText } = selectors;
-        const { tryAgainBtn, title, description, couponCode } = classes;
+        const { tryAgainBtn, title, description, couponCode, couponCodeContainer, couponCodeBtn, warning } = classes;
 
         const winHTML = `
             <h2 class="${title}">${win.title}</h2>
             <div class="${description}">${win.description}</div>
-            <div>
-                <div>${win.couponCode}</div>
-                <div class="${couponCode}">${win.buttonText}</div>
+            <div class="${couponCodeContainer}">
+                <div class="${couponCode}">${win.couponCode}</div>
+                <div class="${couponCodeBtn}">${win.buttonText}</div>
             </div>
-            <div>${win.warning}</div>
+            <div class="${warning}">${win.warning}</div>
         `;
 
         const loseHTML = `
